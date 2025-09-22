@@ -1,32 +1,13 @@
-import { useState } from "react";
 import InputBox from "./InputBox";
-import { reducer } from "../Reducer/gameReducer";
 
-// WordRow has finishedWord.
-
-// Your reducer (gameReducer) wants to know when a word has been submitted.
-
-// So, the “submit” action should carry finishedWord as a payload.
-
-// How to trigger:
-
-// Right now your <form> doesn’t actually submit anything.
-
-// If you want, you can listen for onSubmit on the form, prevent default, then dispatch.
-
-// Reducer responsibility:
-
-// When it sees SUBMITTED, don’t just increment guessCount.
-
-// Also push finishedWord into the state (maybe into a guesses array, or replace word).
-
-// Temporary setup:
-
-// You don’t need the full validation/Wordle logic yet.
-
-export default function WordRow() {
-  const [letters, setLetters] = useState(Array(5).fill(null));
-
+export default function WordRow({
+  dispatch,
+  setLetters,
+  letters,
+  finishedWord,
+  isSubmitted,
+  setIsSubmitted,
+}) {
   // Identify letter in the index
   function updateLetter(index, value) {
     setLetters((prev) => {
@@ -35,11 +16,22 @@ export default function WordRow() {
       return copy;
     });
   }
-  const finishedWord = letters.join("").toUpperCase();
+
+  function handleSubmit(e) {
+    e.preventDefault();
+    if (finishedWord.length === 5) {
+      console.log("Submitted");
+
+      dispatch({
+        type: "SUBMITTED",
+        payload: { word: finishedWord, isLocked: true },
+      });
+    }
+  }
 
   return (
     <form
-      onSubmit={console.log("Submit")}
+      onSubmit={handleSubmit}
       className="grid grid-cols-5 w-120 h-13 bg-white "
     >
       {letters.map((letter, index) => (
@@ -49,6 +41,8 @@ export default function WordRow() {
           onChange={(val) => updateLetter(index, val)}
         />
       ))}
+
+      <button type="submit" className="hidden" aria-hidden="true" />
     </form>
   );
 }
